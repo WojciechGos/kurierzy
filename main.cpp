@@ -9,34 +9,51 @@ using namespace std;
 const int TREE_SIZE = 1e6 + 1e5;
 const int MAX = 5e5+2;
 
-int n, m, a, b, k, r, R;
+int n, m, a, b, k, r, R, range;
 int p[MAX];
 int s[MAX];
 pair<int,int> tree[TREE_SIZE];
 map<int,vector<int>> pos;
 vector<int>::iterator it;
 
-void binary_search(const int& f, const int& value){
+int normal_search(const int& f, const int& value, bool is_lower_q){
+    int previous = 0;
+    for(auto& it: pos[value]){
+        
+        if(it > f && is_lower_q == true){
+            cout << "prev: " <<  previous << endl;
+            return s[previous];
+        }
+        previous = it;
+    }
+}
+
+int binary_search(const int& f, const int& value, bool is_lower_q){
 
     int start = 0, end = pos[value].size(), mid, tmp;
 
-    while(start < end){
+    while(start <= end){
         mid = (start + end) / 2;
         tmp = pos[value][mid];
 
-        if(tmp == f){
-                        
+
+        if(tmp == f){                
             break;
         }else if(tmp > f){
-            start = mid;
-
+            end = mid - 1;
         }else if(tmp < f){
-            end = mid;
+            start = mid + 1;
         }
     }
-    if(tmp < f){
-        mid++;
+    if(pos[value].size() <= mid){
+        mid = pos[value].size() - 1;
     }
+    if(pos[value][mid] < f && is_lower_q == true){
+         cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] + 1 <<  endl;
+        return s[pos[value][mid]] + 1;
+    }
+    cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] <<  endl;
+    return s[pos[value][mid]];
 }
 
 pair<int,int> assaign_candidate(const pair<int,int>& a, const pair<int,int>& b){
@@ -93,22 +110,37 @@ void solve(){
         cin >> p[i];
         create_chain_of_count(p[i], i);  
     }
+
     create_tree();
-    for(int i=n+r; i>=1; --i){
-        cout << "p: " << i << "   | " << tree[i].first << " " << tree[i].second << endl;
-    }
+    // for(int i=n+r; i>=1; --i){
+    //     cout << "p: " << i << "   | " << tree[i].first << " " << tree[i].second << endl;
+    // }
+    bool is_contain_leader = false;
     for(int i=1; i<=m; ++i){
         cin >> a >> b;
+        range = b - (a-1);
         query(1, 1, R, a, b);
-
+        is_contain_leader = false;
+        // cout << "A " << a << " | B " << b << endl; 
         for(auto& it: q){
-            cout << it << endl;
+            // cout << it << endl;
             if(tree[it].second > 0){
-
+                // cout << "v " << tree[it].first << " B:  "  << b << "  r : ";
+                // cout << tree[it].first << " bs " << binary_search(a, tree[it].first) << endl;
+                // (binary_search(a,tree[it].first, true)
+                if( range/2  < binary_search(b, tree[it].first, false) - (normal_search(a, tree[it].first, true))){
+                    cout << tree[it].first << endl;
+                    is_contain_leader = true;
+                    break;
+                }
+                
             }
         }
+        if(is_contain_leader == false){
+            cout << 0 << endl;
+        }
         q.clear();
-        cout << endl;
+        // cout << endl;
 
     }
 
