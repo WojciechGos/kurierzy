@@ -9,28 +9,30 @@ using namespace std;
 const int TREE_SIZE = 1e6 + 1e5;
 const int MAX = 5e5+2;
 
-int n, m, a, b, k, r, R, range;
+int n, m, a, b, k, r, R;
+float range;
 int p[MAX];
 int s[MAX];
 pair<int,int> tree[TREE_SIZE];
 map<int,vector<int>> pos;
 vector<int>::iterator it;
 
-int normal_search(const int& f, const int& value, bool is_lower_q){
-    int previous = 0;
+int normal_search(const int& f, const int& value){
+    int tmp = 0;
     for(auto& it: pos[value]){
-        
-        if(it > f && is_lower_q == true){
-            cout << "prev: " <<  previous << endl;
-            return s[previous];
+        if(it < f){
+            continue;
+        }else{
+            tmp = it;
+            break;
         }
-        previous = it;
     }
+    return s[pos[value][tmp]];
 }
 
 int binary_search(const int& f, const int& value, bool is_lower_q){
 
-    int start = 0, end = pos[value].size(), mid, tmp;
+    int start = 0, end = pos[value].size()-1, mid, tmp;
 
     while(start <= end){
         mid = (start + end) / 2;
@@ -49,10 +51,10 @@ int binary_search(const int& f, const int& value, bool is_lower_q){
         mid = pos[value].size() - 1;
     }
     if(pos[value][mid] < f && is_lower_q == true){
-         cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] + 1 <<  endl;
+         //cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] + 1 <<  endl;
         return s[pos[value][mid]] + 1;
     }
-    cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] <<  endl;
+    //cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] <<  endl;
     return s[pos[value][mid]];
 }
 
@@ -128,7 +130,8 @@ void solve(){
                 // cout << "v " << tree[it].first << " B:  "  << b << "  r : ";
                 // cout << tree[it].first << " bs " << binary_search(a, tree[it].first) << endl;
                 // (binary_search(a,tree[it].first, true)
-                if( range/2  < binary_search(b, tree[it].first, false) - (normal_search(a, tree[it].first, true))){
+                cout << tree[it].first << "range: " << (range/2)  << " ? " << binary_search(b, tree[it].first, false) - (binary_search(a, tree[it].first, true)- 1)<< endl;
+                if( (range/2)  < binary_search(b, tree[it].first, false) - (binary_search(a, tree[it].first, true)- 1)){
                     cout << tree[it].first << endl;
                     is_contain_leader = true;
                     break;
