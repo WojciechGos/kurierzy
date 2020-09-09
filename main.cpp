@@ -6,8 +6,8 @@
 
 using namespace std;
 
-const int TREE_SIZE = 1e6 + 1e5;
-const int MAX = 5e5+2;
+const int TREE_SIZE = 2e6;
+const int MAX = 5e5+10;
 
 int n, m, a, b, k, r, R;
 float range;
@@ -17,18 +17,6 @@ pair<int,int> tree[TREE_SIZE];
 map<int,vector<int>> pos;
 vector<int>::iterator it;
 
-int normal_search(const int& f, const int& value){
-    int tmp = 0;
-    for(auto& it: pos[value]){
-        if(it < f){
-            continue;
-        }else{
-            tmp = it;
-            break;
-        }
-    }
-    return s[pos[value][tmp]];
-}
 
 int binary_search(const int& f, const int& value, bool is_lower_q){
 
@@ -47,14 +35,15 @@ int binary_search(const int& f, const int& value, bool is_lower_q){
             start = mid + 1;
         }
     }
+
     if(pos[value].size() <= mid){
         mid = pos[value].size() - 1;
     }
     if(pos[value][mid] < f && is_lower_q == true){
-         //cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] + 1 <<  endl;
+         
         return s[pos[value][mid]] + 1;
     }
-    //cout << value << " a " << f << " index: "<< pos[value][mid] << " am " << s[pos[value][mid]] <<  endl;
+   // z ifem powyżej jest coś nie tak
     return s[pos[value][mid]];
 }
 
@@ -103,35 +92,40 @@ void create_tree(){
     }
 }
 
+
+int lowest_power(){
+    int tmp = 2;
+    for(int i=1; i<=20; ++i){
+        if(tmp >= n){
+            return tmp;
+        }
+        tmp *= 2;
+    }
+}
 void solve(){
     cin >> n >> m;
     k = ceil(log2(n));
     r = pow(2,k) - 1;
-    R = pow(2, ceil(log(n)/log(2)));
+    R = lowest_power();
     for(int i=1; i<=n; ++i){
         cin >> p[i];
         create_chain_of_count(p[i], i);  
     }
 
     create_tree();
-    // for(int i=n+r; i>=1; --i){
-    //     cout << "p: " << i << "   | " << tree[i].first << " " << tree[i].second << endl;
-    // }
+
     bool is_contain_leader = false;
     for(int i=1; i<=m; ++i){
         cin >> a >> b;
         range = b - (a-1);
         query(1, 1, R, a, b);
         is_contain_leader = false;
-        // cout << "A " << a << " | B " << b << endl; 
+
         for(auto& it: q){
-            // cout << it << endl;
+          
             if(tree[it].second > 0){
-                // cout << "v " << tree[it].first << " B:  "  << b << "  r : ";
-                // cout << tree[it].first << " bs " << binary_search(a, tree[it].first) << endl;
-                // (binary_search(a,tree[it].first, true)
-                cout << tree[it].first << "range: " << (range/2)  << " ? " << binary_search(b, tree[it].first, false) - (binary_search(a, tree[it].first, true)- 1)<< endl;
-                if( (range/2)  < binary_search(b, tree[it].first, false) - (binary_search(a, tree[it].first, true)- 1)){
+                // cout << range/2 << endl;
+                if( (float)(range/2)  < (float)(binary_search(b, tree[it].first, false) - (binary_search(a, tree[it].first, true)- 1))){
                     cout << tree[it].first << endl;
                     is_contain_leader = true;
                     break;
@@ -143,7 +137,7 @@ void solve(){
             cout << 0 << endl;
         }
         q.clear();
-        // cout << endl;
+        
 
     }
 
